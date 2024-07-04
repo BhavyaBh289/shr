@@ -23,3 +23,45 @@ using (TaskService ts = new TaskService("192.168.122.177","Administrator","Admin
 
 }
 
+ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = pythonExePath,
+            Arguments = pythonArgs,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        try
+        {
+            using (Process process = new Process { StartInfo = psi })
+            {
+                process.Start();
+
+                // Read the output from the script
+                string output = process.StandardOutput.ReadToEnd();
+                string errors = process.StandardError.ReadToEnd();
+
+                process.WaitForExit();
+
+                // Print the output and errors
+                Console.WriteLine("Output:");
+                Console.WriteLine(output);
+
+                if (!string.IsNullOrWhiteSpace(errors))
+                {
+                    Console.WriteLine("Errors:");
+                    Console.WriteLine(errors);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred while running the Python script.");
+            Console.WriteLine($"Error: {ex.Message}");
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+            }
+        }
